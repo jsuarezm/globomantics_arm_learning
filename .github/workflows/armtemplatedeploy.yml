@@ -46,7 +46,7 @@ jobs:
           template: ./arm-templates/storageaccount.json
           parameters: 
             storageAccountName=globalstg998877
-            location=West Europe
+            location="West Europe"
             sku=Standard_LRS
           deploymentMode: incremental
 
