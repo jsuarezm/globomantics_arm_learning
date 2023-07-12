@@ -25,6 +25,9 @@ jobs:
           subscriptionId: f801f268-4bbc-4ba4-8ee5-c6447296eaef
           region: West Europe
           template: ./arm-templates/resourcegroup.json
+          parameters: 
+            resourceGroupName=rg-githubactions
+            location=West Europe
           deploymentName: rg-githubactions   
       
       - name: List resource Groups for validation
@@ -35,16 +38,19 @@ jobs:
 
       - name:  Deploy Storage Account
         uses: Azure/arm-deploy@v1
+        id: storageAccountDeploy
         with:
           scope: resourcegroup
           resourceGroupName: rg-githubactions
           subscriptionId: f801f268-4bbc-4ba4-8ee5-c6447296eaef
           template: ./arm-templates/storageaccount.json
           parameters: 
-            ./arm-templates/storageaccount.parameters.json
-            storageAccountName=globalstg556677
+            storageAccountName=globalstg998877
+            location=West Europe
+            sku=Standard_LRS
           deploymentMode: incremental
 
+      - run: echo ${{ steps.storageAccountDeploy.outputs.BlobUri }}
 
 
 
