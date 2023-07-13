@@ -51,15 +51,15 @@ jobs:
           deploymentMode: incremental
 
       - name:  Deploy Virtual Machine
-      uses: Azure/arm-deploy@v1
-      with:
-        scope: resourcegroup
-        resourceGroupName: rg-githubactions
-        subscriptionId: f801f268-4bbc-4ba4-8ee5-c6447296eaef
-        template: ./arm-templates/virtualmachine.json
-        parameters: 
-          adminPassword="My$ecureP@ssword!"
-        deploymentMode: incremental
+        uses: Azure/arm-deploy@v1
+        with:
+          scope: resourcegroup
+          resourceGroupName: rg-githubactions
+          subscriptionId: f801f268-4bbc-4ba4-8ee5-c6447296eaef
+          template: ./arm-templates/virtualmachine.json
+          parameters: 
+            adminPassword="My$ecureP@ssword!"
+          deploymentMode: incremental
 
 
 
