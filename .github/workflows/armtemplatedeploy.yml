@@ -12,8 +12,14 @@ env:
   subscriptionId: f801f268-4bbc-4ba4-8ee5-c6447296eaef
 
 jobs:
-  armDeploy:
+  armDeployStaging:
+    name: Deploy to Staging
     runs-on: ubuntu-latest
+    env:
+      resource_group_name: rg-stg-githubactions
+      location: West Europe
+    environment:
+      name: staging 
 
     steps:
       - uses: actions/checkout@v3
@@ -50,7 +56,7 @@ jobs:
           subscriptionId: ${{ env.subscriptionId }}
           template: ./arm-templates/storageaccount.json
           parameters: 
-            storageAccountName=globalstg998877
+            storageAccountName=globalstg99887701
             location="${{ env.location }}"
             sku=Standard_LRS
           deploymentMode: incremental
@@ -67,7 +73,70 @@ jobs:
             location="${{ env.location }}"
           deploymentMode: incremental
 
-          
+  armDeployProduction:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    env:
+      resource_group_name: rg-prod-githubactions
+      location: North Europe
+    environment:
+      name: production
+
+    needs: armDeployStaging
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Azure Login
+        uses: Azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name:  Deploy resource Group ${{ env.resource_group_name }}
+        uses: Azure/arm-deploy@v1
+        with:
+          scope: subscription
+          subscriptionId: ${{ env.subscriptionId }}
+          region: "${{ env.location }}"
+          template: ./arm-templates/resourcegroup.json
+          parameters: 
+            resourceGroupName=${{ env.resource_group_name }}
+            location="${{ env.location }}"
+          deploymentName: ${{ env.resource_group_name }}   
+      
+      # - name: List resource Groups for validation
+      #   uses: Azure/cli@v1.0.7
+      #   with:
+      #     inlinescript: |
+      #       az group list --subscription f801f268-4bbc-4ba4-8ee5-c6447296eaef
+
+      - name:  Deploy Storage Account
+        uses: Azure/arm-deploy@v1
+        id: storageAccountDeploy
+        with:
+          scope: resourcegroup
+          resourceGroupName: ${{ env.resource_group_name }}
+          subscriptionId: ${{ env.subscriptionId }}
+          template: ./arm-templates/storageaccount.json
+          parameters: 
+            storageAccountName=globalstg99887702
+            location="${{ env.location }}"
+            sku=Standard_LRS
+          deploymentMode: incremental
+
+      - name:  Deploy Virtual Machine
+        uses: Azure/arm-deploy@v1
+        with:
+          scope: resourcegroup
+          resourceGroupName: ${{ env.resource_group_name }}
+          subscriptionId: ${{ env.subscriptionId }}
+          template: ./arm-templates/virtualmachine.json
+          parameters: 
+            adminPassword=${{ secrets.UBUNTU_ADMIN_PASSWORD }}
+            location="${{ env.location }}"
+          deploymentMode: incremental
+
+
 
 
 
